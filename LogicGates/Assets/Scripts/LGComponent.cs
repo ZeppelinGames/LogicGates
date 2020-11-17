@@ -36,6 +36,8 @@ public class LGComponent : MonoBehaviour
         inputs = componentData.inputs;
         outputs = componentData.outputs;
         componentType = componentData.componentType;
+
+        spr.color = componentData.componentColor;
     }
 
     void UpdateSpriteRenderer()

@@ -9,6 +9,7 @@ public class ComponentSO : ScriptableObject
     [Range(1, 10)]
     public int inputs = 1, outputs = 1;
     public ComponentType componentType;
+    public Color componentColor = Color.blue;
 
     public enum ComponentType { AND, OR, NOT, NAND, NOR, XOR, XNOR, SPLITTER, LIGHT };
 
