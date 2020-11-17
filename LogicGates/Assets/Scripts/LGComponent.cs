@@ -4,26 +4,38 @@ using UnityEngine;
 
 public class LGComponent : MonoBehaviour
 {
-    [Range(1, 10)]
-    public int inputs, outputs = 1;
+    public ComponentSO componentData;
     public GameObject nodePrefab;
 
+    private int inputs, outputs = 1;
+    private ComponentSO.ComponentType componentType;
     private List<GameObject> inputNodes = new List<GameObject>();
     private List<GameObject> outputNodes = new List<GameObject>();
 
+    [HideInInspector]
+    public bool componentActive = false;
     [HideInInspector]
     public List<LGComponent> inputConnections = new List<LGComponent>();
 
     private SpriteRenderer spr;
 
-    public enum gates { AND, OR, NOT, NAND, NOR, XOR, XNOR };
-
     // Start is called before the first frame update
     void Start()
     {
         spr = GetComponent<SpriteRenderer>();
+
+        GetComponentData();
         UpdateSpriteRenderer();
         UpdateNodes();
+    }
+
+    void GetComponentData()
+    {
+        this.name = componentData.name;
+
+        inputs = componentData.inputs;
+        outputs = componentData.outputs;
+        componentType = componentData.componentType;
     }
 
     void UpdateSpriteRenderer()
@@ -127,7 +139,7 @@ public class LGComponent : MonoBehaviour
         for (int n = 0; n < inputs; n++)
         {
             float x = currPos.x - halfSprSize.x;
-            float y = currPos.y - sizeYInputs + (sizeYInputs * (n - (inputs / 2) + 1)) + ((sizeYInputs / 2) * (inputs % 2 > 0 ? 0: 1));
+            float y = currPos.y - sizeYInputs + (sizeYInputs * (n - (inputs / 2) + 1)) + ((sizeYInputs / 2) * (inputs % 2 > 0 ? 0 : 1));
             inputNodes[n].transform.position = new Vector2(x, y);
         }
 
@@ -137,6 +149,93 @@ public class LGComponent : MonoBehaviour
             float x = currPos.x + halfSprSize.x;
             float y = currPos.y - sizeYOutputs + (sizeYOutputs * (n - (outputs / 2) + 1)) + ((sizeYOutputs / 2) * (outputs % 2 > 0 ? 0 : 1));
             outputNodes[n].transform.position = new Vector2(x, y);
+        }
+    }
+
+    private void Update()
+    {
+        //See how many connections are active
+        int activeConnections = 0;
+        foreach (LGComponent input in inputConnections)
+        {
+            if (input.componentActive)
+            {
+                activeConnections++;
+            }
+        }
+
+        switch (componentType)
+        {
+            case ComponentSO.ComponentType.AND: //AND GATE 
+                if (activeConnections >= inputConnections.Count)
+                {
+                    componentActive = true;
+                }
+                else
+                {
+                    componentActive = false;
+                }
+                break;
+            case ComponentSO.ComponentType.OR: //OR GATE
+                foreach (LGComponent input in inputConnections)
+                {
+                    if (input.componentActive)
+                    {
+                        componentActive = true;
+                        break;
+                    }
+                }
+                componentActive = false;
+                break;
+            case ComponentSO.ComponentType.NAND: //Not AND GATE
+                if (activeConnections >= inputConnections.Count)
+                {
+                    componentActive = false;
+                }
+                else
+                {
+                    componentActive = true;
+                }
+                break;
+            case ComponentSO.ComponentType.NOR: //Not OR GATE
+                if (activeConnections == 0)
+                {
+                    componentActive = true;
+                }
+                else
+                {
+                    componentActive = false;
+                }
+                break;
+            case ComponentSO.ComponentType.XOR: //Exclusive OR GATE
+                if (activeConnections == 0 || activeConnections >= inputConnections.Count)
+                {
+                    componentActive = false;
+                }
+                else
+                {
+                    componentActive = true;
+                }
+                break;
+            case ComponentSO.ComponentType.XNOR: //Exclusive NOR GATE
+                if (activeConnections == 0 || activeConnections >= inputConnections.Count)
+                {
+                    componentActive = true;
+                }
+                else
+                {
+                    componentActive = false;
+                }
+                break;
+            case ComponentSO.ComponentType.SPLITTER: //Splits current
+                if (activeConnections > 0)
+                {
+                    componentActive = true;
+                } else
+                {
+                    componentActive = false;
+                }
+                break;
         }
     }
 }
