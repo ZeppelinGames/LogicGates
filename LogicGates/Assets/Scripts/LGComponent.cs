@@ -59,7 +59,7 @@ public class LGComponent : MonoBehaviour
 
         boxCollider.size = new Vector2(0.5f, height);
 
-        canvasUI.GetComponent<RectTransform>().sizeDelta = new Vector2(1920, 1920 + (height * 1920));
+        canvasUI.GetComponent<RectTransform>().sizeDelta = new Vector2(1920, (height * 1920) * 2.75f);
     }
 
     void UpdateNodes()
