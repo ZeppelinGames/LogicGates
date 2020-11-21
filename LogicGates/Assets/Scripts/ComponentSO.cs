@@ -11,7 +11,7 @@ public class ComponentSO : ScriptableObject
     public ComponentType componentType;
     public Color componentColor = Color.blue;
 
-    public enum ComponentType { AND, OR, NOT, NAND, NOR, XOR, XNOR, SPLITTER, LIGHT, POWER };
+    public enum ComponentType { AND, OR, NOT, NAND, NOR, XOR, XNOR, LIGHT, POWER };
 
     private void OnValidate()
     {
@@ -37,9 +37,6 @@ public class ComponentSO : ScriptableObject
                 break;
             case ComponentType.XNOR:
                 if (outputs > 1) { outputs = 1; }
-                break;
-            case ComponentType.SPLITTER:
-                if (inputs > 1) { inputs = 1; }
                 break;
             case ComponentType.LIGHT:
                 if (outputs > 0) { outputs = 0; }

@@ -230,15 +230,6 @@ public class LGComponent : MonoBehaviour
                     componentActive = false;
                 }
                 break;
-            case ComponentSO.ComponentType.SPLITTER: //Splits current
-                if (activeConnections > 0)
-                {
-                    componentActive = true;
-                } else
-                {
-                    componentActive = false;
-                }
-                break;
         }
         #endregion
 
