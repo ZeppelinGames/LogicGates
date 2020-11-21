@@ -237,6 +237,21 @@ public class LGComponent : MonoBehaviour
         }
         #endregion
 
+        //Remove null inputs
+        List<int> nullInputs = new List<int>();
+        foreach(LGComponent input in inputConnections)
+        {
+            if(input == null)
+            {
+                nullInputs.Add(inputConnections.IndexOf(input));
+            }
+        }
+        for(int n =0; n < nullInputs.Count;n++)
+        {
+            inputConnections.RemoveAt(nullInputs[n]);
+        }
+
+
         //Remove overflowing inputs
         if (inputConnections.Count > inputs)
         {
@@ -250,7 +265,10 @@ public class LGComponent : MonoBehaviour
         Gizmos.color = Color.white;
         foreach (LGComponent input in inputConnections)
         {
-            Gizmos.DrawLine(transform.position, input.transform.position);
+            if (input != null)
+            {
+                Gizmos.DrawLine(transform.position, input.transform.position);
+            }
         }
     }
 }
