@@ -5,7 +5,7 @@ using UnityEngine;
 public class CircuitBuilder : MonoBehaviour
 {
     public GameObject componentPrefab;
-    public List<ComponentSO> components;
+    private List<ComponentSO> components;
 
     private ComponentSO currComponent;
 
@@ -18,6 +18,8 @@ public class CircuitBuilder : MonoBehaviour
     void Start()
     {
         cam = GetComponent<Camera>();
+
+        components.AddRange(Resources.LoadAll<ComponentSO>("ComponentData"));
         currComponent = components[0];
     }
 
