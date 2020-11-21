@@ -224,8 +224,9 @@ public class LGComponent : MonoBehaviour
         }
 
         //Remove dead connection from list
-        for(int n =0; n < deadConnection.Count;n++)
+        for (int n = 0; n < deadConnection.Count; n++)
         {
+            Destroy(deadConnection[n].wire);
             connections.Remove(deadConnection[n]);
         }
     }
