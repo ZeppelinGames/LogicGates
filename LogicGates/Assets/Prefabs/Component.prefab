@@ -98,8 +98,13 @@ MonoBehaviour:
   componentData: {fileID: 11400000, guid: b7a41aaf2c75fc54e815db2202e988ec, type: 2}
   nodePrefab: {fileID: 8343748187547280674, guid: 94bf91e6a1d23b7489a95fe32687a35f,
     type: 3}
+  wirePrefab: {fileID: 6042207282197280908, guid: 5a04c10377833114ba0f76febe30c163,
+    type: 3}
+  inputs: 0
+  outputs: 1
+  inputNodes: []
+  outputNodes: []
   componentActive: 0
-  inputConnections: []
 --- !u!61 &4239650662379548681
 BoxCollider2D:
   m_ObjectHideFlags: 0

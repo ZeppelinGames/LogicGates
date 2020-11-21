@@ -6,16 +6,21 @@ public class LGComponent : MonoBehaviour
 {
     public ComponentSO componentData;
     public GameObject nodePrefab;
+    public GameObject wirePrefab;
 
-    private int inputs, outputs = 1;
+    [HideInInspector]
+    public int inputs, outputs = 1;
     private ComponentSO.ComponentType componentType;
-    private List<GameObject> inputNodes = new List<GameObject>();
-    private List<GameObject> outputNodes = new List<GameObject>();
+    
+    [HideInInspector]
+    public List<GameObject> inputNodes = new List<GameObject>();
+    [HideInInspector]
+    public List<GameObject> outputNodes = new List<GameObject>();
 
     [HideInInspector]
     public bool componentActive = false;
     [HideInInspector]
-    public List<LGComponent> inputConnections = new List<LGComponent>();
+    public List<Connection> connections = new List<Connection>();
 
     private SpriteRenderer spr;
     private BoxCollider2D boxCollider;
@@ -158,13 +163,61 @@ public class LGComponent : MonoBehaviour
         }
     }
 
+    void UpdateWires()
+    {
+        foreach (Connection connection in connections)
+        {
+            if (connection.wire == null)
+            {
+                LGComponent from = connection.output; //OUTPUT
+                LGComponent to = connection.input; //INPUT
+
+                connection.inputNode = connections.Count - 1;
+                connection.outputNode = from.outputNodes.Count - 1;
+
+                Vector2 node1 = from.outputNodes[connection.outputNode].transform.position;
+                Vector2 node2 = to.inputNodes[connection.inputNode].transform.position;
+
+                GameObject newLR = Instantiate(wirePrefab, transform.position, Quaternion.identity);
+                newLR.transform.position = Vector3.zero;
+
+                LineRenderer newLRComp = newLR.GetComponent<LineRenderer>();
+                newLRComp.positionCount = 2;
+                newLRComp.SetPositions(new Vector3[] { node1, node2 });
+
+                connection.wire = newLRComp;
+            }
+            else
+            {
+                LGComponent from = connection.output; //OUTPUT
+                LGComponent to = connection.input; //INPUT
+
+                Vector2 node1 = from.outputNodes[connection.outputNode].transform.position;
+                Vector2 node2 = to.inputNodes[connection.inputNode].transform.position;
+
+                connection.wire.positionCount = 2;
+                connection.wire.SetPositions(new Vector3[] { node1, node2 });
+            }
+        }
+    }
+
+    public void DeleteComponent()
+    {
+        foreach (Connection conn in connections)
+        {
+            Destroy(conn.wire.gameObject);
+        }
+
+        Destroy(this.gameObject);
+    }
+
     private void Update()
     {
         //See how many connections are active
         int activeConnections = 0;
-        foreach (LGComponent input in inputConnections)
+        foreach (Connection conn in connections)
         {
-            if (input.componentActive)
+            if (conn.input.componentActive)
             {
                 activeConnections++;
             }
@@ -174,7 +227,7 @@ public class LGComponent : MonoBehaviour
         switch (componentType)
         {
             case ComponentSO.ComponentType.AND: //AND GATE 
-                if (activeConnections >= inputConnections.Count)
+                if (activeConnections >= connections.Count)
                 {
                     componentActive = true;
                 }
@@ -184,9 +237,9 @@ public class LGComponent : MonoBehaviour
                 }
                 break;
             case ComponentSO.ComponentType.OR: //OR GATE
-                foreach (LGComponent input in inputConnections)
+                foreach (Connection conn in connections)
                 {
-                    if (input.componentActive)
+                    if (conn.input.componentActive)
                     {
                         componentActive = true;
                         break;
@@ -195,7 +248,7 @@ public class LGComponent : MonoBehaviour
                 componentActive = false;
                 break;
             case ComponentSO.ComponentType.NAND: //Not AND GATE
-                if (activeConnections >= inputConnections.Count)
+                if (activeConnections >= connections.Count)
                 {
                     componentActive = false;
                 }
@@ -215,7 +268,7 @@ public class LGComponent : MonoBehaviour
                 }
                 break;
             case ComponentSO.ComponentType.XOR: //Exclusive OR GATE
-                if (activeConnections == 0 || activeConnections >= inputConnections.Count)
+                if (activeConnections == 0 || activeConnections >= connections.Count)
                 {
                     componentActive = false;
                 }
@@ -225,7 +278,7 @@ public class LGComponent : MonoBehaviour
                 }
                 break;
             case ComponentSO.ComponentType.XNOR: //Exclusive NOR GATE
-                if (activeConnections == 0 || activeConnections >= inputConnections.Count)
+                if (activeConnections == 0 || activeConnections >= connections.Count)
                 {
                     componentActive = true;
                 }
@@ -234,41 +287,63 @@ public class LGComponent : MonoBehaviour
                     componentActive = false;
                 }
                 break;
+            case ComponentSO.ComponentType.POWER:
+                componentActive = true;
+                break;
         }
         #endregion
 
         //Remove null inputs
         List<int> nullInputs = new List<int>();
-        foreach(LGComponent input in inputConnections)
+        foreach(Connection conn in connections)
         {
-            if(input == null)
+            if(conn.input == null)
             {
-                nullInputs.Add(inputConnections.IndexOf(input));
+                nullInputs.Add(connections.IndexOf(conn));
             }
         }
         for(int n =0; n < nullInputs.Count;n++)
         {
-            inputConnections.RemoveAt(nullInputs[n]);
+            connections.RemoveAt(nullInputs[n]);
         }
 
 
         //Remove overflowing inputs
-        if (inputConnections.Count > inputs)
+        if (connections.Count > inputs)
         {
-            int removeRange = inputConnections.Count - inputs;
-            inputConnections.RemoveRange(inputConnections.Count - removeRange - 1, removeRange);
+            int removeRange = connections.Count - inputs;
+            connections.RemoveRange(connections.Count - removeRange - 1, removeRange);
         }
+
+        UpdateWires();
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.white;
-        foreach (LGComponent input in inputConnections)
+        foreach (Connection conn in connections)
         {
-            if (input != null)
+            if (conn.input != null)
             {
-                Gizmos.DrawLine(transform.position, input.transform.position);
+                Gizmos.DrawLine(transform.position, conn.input.transform.position);
             }
         }
+    }
+}
+
+public class Connection
+{
+    public LGComponent input;
+    public LGComponent output;
+    public LineRenderer wire;
+
+    public int outputNode;
+    public int inputNode;
+
+    public Connection(LGComponent input, LGComponent output, LineRenderer wire)
+    {
+        this.input = input;
+        this.output = output;
+        this.wire = wire;
     }
 }

@@ -289,6 +289,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   componentPrefab: {fileID: 1049682979348300544, guid: 684afc7975f542047844bbfc928cfe32,
     type: 3}
+  wirePrefab: {fileID: 6042207282197280908, guid: 5a04c10377833114ba0f76febe30c163,
+    type: 3}
   UIPrefab: {fileID: 8747032280073637477, guid: b520ca1515f083e448807472d9fb7442,
     type: 3}
   UIParent: {fileID: 32214870}
@@ -319,7 +321,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 1
+  orthographic size: 5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2

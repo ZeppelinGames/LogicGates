@@ -15,32 +15,15 @@ public class ComponentSO : ScriptableObject
 
     private void OnValidate()
     {
+        if (componentType != ComponentType.LIGHT)
+        {
+            if (outputs > 1) { outputs = 1; }
+        }
         switch (componentType)
         {
-            case ComponentType.AND:
-                if (outputs > 1) { outputs = 1; }
-                break;
-            case ComponentType.OR:
-                if (outputs > 1) { outputs = 1; }
-                break;
-            case ComponentType.NOT:
-                if (outputs > 1) { outputs = 1; }
-                break;
-            case ComponentType.NAND:
-                if (outputs > 1) { outputs = 1; }
-                break;
-            case ComponentType.NOR:
-                if (outputs > 1) { outputs = 1; }
-                break;
-            case ComponentType.XOR:
-                if (outputs > 1) { outputs = 1; }
-                break;
-            case ComponentType.XNOR:
-                if (outputs > 1) { outputs = 1; }
-                break;
             case ComponentType.LIGHT:
-                if (outputs > 0) { outputs = 0; }
                 if (inputs > 1) { inputs = 1; }
+                if (outputs > 0) { outputs = 0; }
                 break;
             case ComponentType.POWER:
                 if(inputs > 0) { inputs = 0; }

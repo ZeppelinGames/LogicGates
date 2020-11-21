@@ -9,9 +9,9 @@ public class CircuitBuilder : MonoBehaviour
     public GameObject componentPrefab;
     public GameObject UIPrefab;
     public Transform UIParent;
+
     private List<ComponentSO> components = new List<ComponentSO>();
 
-    private ComponentSO currComponent;
 
     private Camera cam;
 
@@ -69,7 +69,7 @@ public class CircuitBuilder : MonoBehaviour
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, 1000);
 
-            if(hit.collider != null)
+            if (hit.collider != null)
             {
                 if (hit.collider.GetComponentInParent<LGComponent>()) //Hit node
                 {
@@ -83,11 +83,11 @@ public class CircuitBuilder : MonoBehaviour
             }
         }
 
-        if(Input.GetKeyDown(KeyCode.Delete))
+        if (Input.GetKeyDown(KeyCode.Delete))
         {
-            if(currentSelectedComponent != null)
+            if (currentSelectedComponent != null)
             {
-                Destroy(currentSelectedComponent.gameObject);
+                currentSelectedComponent.DeleteComponent();
                 currentSelectedComponent = null;
             }
         }
@@ -107,8 +107,9 @@ public class CircuitBuilder : MonoBehaviour
                         LGComponent parentComponent = hit.collider.GetComponentInParent<LGComponent>();
                         if (parentComponent != currNodeConnector)
                         {
+                            //DRAW LINE BETWEEN NODES
+                            parentComponent.connections.Add(new Connection(parentComponent,currNodeConnector,null));
                             Debug.Log("Connected nodes");
-                            parentComponent.inputConnections.Add(currNodeConnector);
                         }
                     }
                 }
