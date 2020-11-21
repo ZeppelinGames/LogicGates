@@ -166,6 +166,7 @@ public class LGComponent : MonoBehaviour
             }
         }
 
+        #region CheckComponentType
         switch (componentType)
         {
             case ComponentSO.ComponentType.AND: //AND GATE 
@@ -238,6 +239,23 @@ public class LGComponent : MonoBehaviour
                     componentActive = false;
                 }
                 break;
+        }
+        #endregion
+
+        //Remove overflowing inputs
+        if (inputConnections.Count > inputs)
+        {
+            int removeRange = inputConnections.Count - inputs;
+            inputConnections.RemoveRange(inputConnections.Count - removeRange - 1, removeRange);
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.white;
+        foreach (LGComponent input in inputConnections)
+        {
+            Gizmos.DrawLine(transform.position, input.transform.position);
         }
     }
 }
