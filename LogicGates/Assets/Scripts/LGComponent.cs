@@ -18,11 +18,13 @@ public class LGComponent : MonoBehaviour
     public List<LGComponent> inputConnections = new List<LGComponent>();
 
     private SpriteRenderer spr;
+    private BoxCollider2D boxCollider;
 
     // Start is called before the first frame update
     void Start()
     {
-        spr = GetComponent<SpriteRenderer>();
+        if (GetComponent<SpriteRenderer>()) { spr = GetComponent<SpriteRenderer>(); }
+        if (GetComponent<BoxCollider2D>()) { boxCollider = GetComponent<BoxCollider2D>(); }
 
         GetComponentData();
         UpdateSpriteRenderer();
@@ -44,6 +46,8 @@ public class LGComponent : MonoBehaviour
     {
         float height = inputs < outputs ? outputs * 0.5f : inputs * 0.5f;
         spr.size = new Vector2(0.5f, height);
+
+        boxCollider.size = new Vector2(0.5f, height);
     }
 
     void UpdateNodes()
