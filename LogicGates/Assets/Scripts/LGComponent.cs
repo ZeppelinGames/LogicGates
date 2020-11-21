@@ -420,12 +420,15 @@ public class LGComponent : MonoBehaviour
             connections.RemoveAt(nullInputs[n]);
         }
 
-
         //Remove overflowing inputs
         if (connections.Count > inputs)
         {
             int removeRange = connections.Count - inputs;
-            connections.RemoveRange(connections.Count - removeRange - 1, removeRange);
+            for(int n=connections.Count-removeRange-1; n < removeRange;n++)
+            {
+                Destroy(connections[n].wire);
+                connections.RemoveAt(n);
+            }
         }
 
         UpdateWires();
