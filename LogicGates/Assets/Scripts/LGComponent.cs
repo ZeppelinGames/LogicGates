@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class LGComponent : MonoBehaviour
 {
@@ -19,8 +20,12 @@ public class LGComponent : MonoBehaviour
 
     //[HideInInspector]
     public bool componentActive = false;
+    public bool isPowered=false;
     [HideInInspector]
     public List<Connection> connections = new List<Connection>();
+
+    public Canvas canvasUI;
+    public TextMeshProUGUI compUIText;
 
     private SpriteRenderer spr;
     private BoxCollider2D boxCollider;
@@ -165,39 +170,63 @@ public class LGComponent : MonoBehaviour
 
     void UpdateWires()
     {
+        List<Connection> deadConnection = new List<Connection>();
         foreach (Connection connection in connections)
         {
-            if (connection.wire == null)
+            LGComponent from = connection.output; //OUTPUT
+            LGComponent to = connection.input; //INPUT
+
+            //REMOVE DEAD CONNECTIONS
+            for (int n = 0; n < from.outputNodes.Count; n++)
             {
-                LGComponent from = connection.output; //OUTPUT
-                LGComponent to = connection.input; //INPUT
-
-                connection.inputNode = connections.Count - 1;
-                connection.outputNode = from.outputNodes.Count - 1;
-
-                Vector2 node1 = from.outputNodes[connection.outputNode].transform.position;
-                Vector2 node2 = to.inputNodes[connection.inputNode].transform.position;
-
-                GameObject newLR = Instantiate(wirePrefab, transform.position, Quaternion.identity);
-                newLR.transform.position = Vector3.zero;
-
-                LineRenderer newLRComp = newLR.GetComponent<LineRenderer>();
-                newLRComp.positionCount = 2;
-                newLRComp.SetPositions(new Vector3[] { node1, node2 });
-
-                connection.wire = newLRComp;
+                if (from.outputNodes[n] == null)
+                {
+                    deadConnection.Add(connection);
+                }
             }
-            else
+            for (int n = 0; n < to.inputNodes.Count; n++)
             {
-                LGComponent from = connection.output; //OUTPUT
-                LGComponent to = connection.input; //INPUT
-
-                Vector2 node1 = from.outputNodes[connection.outputNode].transform.position;
-                Vector2 node2 = to.inputNodes[connection.inputNode].transform.position;
-
-                connection.wire.positionCount = 2;
-                connection.wire.SetPositions(new Vector3[] { node1, node2 });
+                if (to.inputNodes[n] == null)
+                {
+                    deadConnection.Add(connection);
+                }
             }
+
+            if (deadConnection.Count < 1)
+            {
+                if (connection.wire == null)
+                {
+
+                    connection.inputNode = connections.Count - 1;
+                    connection.outputNode = from.outputNodes.Count - 1;
+
+                    Vector2 node1 = from.outputNodes[connection.outputNode].transform.position;
+                    Vector2 node2 = to.inputNodes[connection.inputNode].transform.position;
+
+                    GameObject newLR = Instantiate(wirePrefab, transform.position, Quaternion.identity);
+                    newLR.transform.position = Vector3.zero;
+
+                    LineRenderer newLRComp = newLR.GetComponent<LineRenderer>();
+                    newLRComp.positionCount = 2;
+                    newLRComp.SetPositions(new Vector3[] { node1, node2 });
+
+                    connection.wire = newLRComp;
+                }
+                else
+                {
+                    Vector2 node1 = from.outputNodes[connection.outputNode].transform.position;
+                    Vector2 node2 = to.inputNodes[connection.inputNode].transform.position;
+
+                    connection.wire.positionCount = 2;
+                    connection.wire.SetPositions(new Vector3[] { node1, node2 });
+                }
+            }
+        }
+
+        //Remove dead connection from list
+        for(int n =0; n < deadConnection.Count;n++)
+        {
+            connections.Remove(deadConnection[n]);
         }
     }
 
@@ -205,6 +234,8 @@ public class LGComponent : MonoBehaviour
     {
         foreach (Connection conn in connections)
         {
+            conn.output.connections.Remove(new Connection(this, conn.output));
+            conn.input.connections.Remove(new Connection(this, conn.input));
             Destroy(conn.wire.gameObject);
         }
 
@@ -248,7 +279,7 @@ public class LGComponent : MonoBehaviour
                 {
                     componentActive = true;
                     break;
-                } 
+                }
                 componentActive = false;
                 break;
             case ComponentSO.ComponentType.NAND: //Not AND GATE
@@ -306,6 +337,26 @@ public class LGComponent : MonoBehaviour
                     spr.color = new Color(0.5f, 0.5f, 0.5f);
                 }
                 break;
+            case ComponentSO.ComponentType.SWITCH:
+                if (componentActive)
+                {
+                    spr.color = componentData.componentColor;
+                }
+                else
+                {
+                    spr.color = new Color(0.5f, 0.5f, 0.5f);
+                }
+                break;
+        }
+
+        if (connections.Count > 0)
+        {
+            isPowered = true;
+        }
+        else
+        {
+            componentActive = false;
+            isPowered = false;
         }
         #endregion
 
@@ -351,15 +402,14 @@ public class Connection
 {
     public LGComponent input;
     public LGComponent output;
-    public LineRenderer wire;
+    public LineRenderer wire=null;
 
     public int outputNode;
     public int inputNode;
 
-    public Connection(LGComponent input, LGComponent output, LineRenderer wire)
+    public Connection(LGComponent input, LGComponent output)
     {
         this.input = input;
         this.output = output;
-        this.wire = wire;
     }
 }

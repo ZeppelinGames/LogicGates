@@ -83,6 +83,30 @@ public class CircuitBuilder : MonoBehaviour
             }
         }
 
+        if (Input.GetMouseButtonDown(1)) //Right Mouse Button - Interact with inputs
+        {
+            //Check to see if object is at position
+            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, 1000);
+
+            if (hit.collider != null)
+            {
+                if (hit.collider.GetComponentInParent<LGComponent>()) //Hit node
+                {
+                    LGComponent comp = hit.collider.GetComponentInParent<LGComponent>();
+                    if (comp.componentData.isInput)
+                    {
+                        switch (comp.componentData.componentType)
+                        {
+                            case ComponentSO.ComponentType.SWITCH:
+                                comp.componentActive = !comp.componentActive;
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
         if (Input.GetKeyDown(KeyCode.Delete))
         {
             if (currentSelectedComponent != null)
@@ -108,7 +132,7 @@ public class CircuitBuilder : MonoBehaviour
                         if (parentComponent != currNodeConnector)
                         {
                             //DRAW LINE BETWEEN NODES
-                            parentComponent.connections.Add(new Connection(parentComponent,currNodeConnector,null));
+                            parentComponent.connections.Add(new Connection(parentComponent,currNodeConnector));
                             Debug.Log("Connected nodes");
                         }
                     }
@@ -135,6 +159,8 @@ public class CircuitBuilder : MonoBehaviour
         {
             LGComponent comp = newComponent.GetComponent<LGComponent>();
             comp.componentData = newComp;
+            comp.canvasUI.worldCamera = cam;
+            comp.compUIText.text = comp.componentData.componentName;
         }
     }
 }
