@@ -58,6 +58,8 @@ public class LGComponent : MonoBehaviour
         spr.size = new Vector2(0.5f, height);
 
         boxCollider.size = new Vector2(0.5f, height);
+
+        canvasUI.GetComponent<RectTransform>().sizeDelta = new Vector2(1920, 1920 + (height * 1920));
     }
 
     void UpdateNodes()
@@ -283,7 +285,7 @@ public class LGComponent : MonoBehaviour
                 }
                 componentActive = false;
                 break;
-            case ComponentSO.ComponentType.NAND: //Not AND GATE
+            case ComponentSO.ComponentType.NAND: //NOT AND GATE
                 if (activeConnections >= connections.Count)
                 {
                     componentActive = false;
@@ -293,10 +295,23 @@ public class LGComponent : MonoBehaviour
                     componentActive = true;
                 }
                 break;
-            case ComponentSO.ComponentType.NOR: //Not OR GATE
+            case ComponentSO.ComponentType.NOR: //NOT OR GATE
                 if (activeConnections == 0)
                 {
                     componentActive = true;
+                }
+                else
+                {
+                    componentActive = false;
+                }
+                break;
+            case ComponentSO.ComponentType.NOT: //NOT Gate
+                if (activeConnections == 0)
+                {
+                    if (inputs == connections.Count)
+                    {
+                        componentActive = true;
+                    }
                 }
                 else
                 {
@@ -384,6 +399,56 @@ public class LGComponent : MonoBehaviour
         }
 
         UpdateWires();
+    }
+
+    public void IncreaseInputs()
+    {
+        inputs++;
+
+        if (componentType != ComponentSO.ComponentType.POWER)
+        {
+            if (inputs < 1) { inputs = 1; }
+        }
+
+        switch (componentType)
+        {
+            case ComponentSO.ComponentType.LIGHT:
+                if(inputs > 1) { inputs = 1; }
+                break;
+            case ComponentSO.ComponentType.POWER:
+                if (inputs > 0) { inputs = 0; }
+                break;
+            case ComponentSO.ComponentType.SWITCH:
+                if (inputs > 1) { inputs = 1; }
+                break;
+        }
+        UpdateSpriteRenderer();
+        UpdateNodes();
+    }
+
+    public void DecreaseInputs()
+    {
+        inputs--;
+        if (componentType != ComponentSO.ComponentType.POWER)
+        {
+            if (inputs < 1) { inputs = 1; }
+        }
+
+        switch (componentType)
+        {
+            case ComponentSO.ComponentType.LIGHT:
+                if (inputs > 1) { inputs = 1; }
+                break;
+            case ComponentSO.ComponentType.POWER:
+                if (inputs > 0) { inputs = 0; }
+                break;
+            case ComponentSO.ComponentType.SWITCH:
+                if (inputs > 1) { inputs = 1; }
+                break;
+        }
+
+        UpdateSpriteRenderer();
+        UpdateNodes();
     }
 
     private void OnDrawGizmos()
