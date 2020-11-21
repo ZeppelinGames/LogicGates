@@ -74,6 +74,10 @@ public class CircuitBuilder : MonoBehaviour
                 if (hit.collider.GetComponentInParent<LGComponent>()) //Hit node
                 {
                     currNodeConnector = hit.collider.GetComponentInParent<LGComponent>();
+                    if (currNodeConnector.inputNodes.Contains(hit.transform.gameObject))
+                    {
+                        currNodeConnector = null;
+                    }
                 }
                 if (hit.collider.GetComponent<LGComponent>()) //Hit component
                 {

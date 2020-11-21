@@ -212,9 +212,16 @@ public class LGComponent : MonoBehaviour
             GameObject node1GO = from.outputNodes[connection.outputNode];
             GameObject node2GO = to.inputNodes[connection.inputNode];
 
-            if(!node1GO.activeInHierarchy || !node2GO.activeInHierarchy)
+            if (node1GO == null || node2GO == null)
             {
                 deadConnection.Add(connection);
+            }
+            else
+            {
+                if (!node1GO.activeInHierarchy || !node2GO.activeInHierarchy)
+                {
+                    deadConnection.Add(connection);
+                }
             }
 
             if (deadConnection.Count < 1)
