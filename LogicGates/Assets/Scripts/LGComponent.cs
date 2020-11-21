@@ -17,7 +17,7 @@ public class LGComponent : MonoBehaviour
     [HideInInspector]
     public List<GameObject> outputNodes = new List<GameObject>();
 
-    [HideInInspector]
+    //[HideInInspector]
     public bool componentActive = false;
     [HideInInspector]
     public List<Connection> connections = new List<Connection>();
@@ -49,7 +49,7 @@ public class LGComponent : MonoBehaviour
 
     void UpdateSpriteRenderer()
     {
-        float height = inputs < outputs ? outputs * 0.5f : inputs * 0.5f;
+        float height = inputs < outputs ? outputs * 0.25f : inputs * 0.25f;
         spr.size = new Vector2(0.5f, height);
 
         boxCollider.size = new Vector2(0.5f, height);
@@ -217,7 +217,7 @@ public class LGComponent : MonoBehaviour
         int activeConnections = 0;
         foreach (Connection conn in connections)
         {
-            if (conn.input.componentActive)
+            if (conn.output.componentActive)
             {
                 activeConnections++;
             }
@@ -227,9 +227,16 @@ public class LGComponent : MonoBehaviour
         switch (componentType)
         {
             case ComponentSO.ComponentType.AND: //AND GATE 
-                if (activeConnections >= connections.Count)
+                if (activeConnections >= inputs)
                 {
-                    componentActive = true;
+                    if (connections.Count > 0)
+                    {
+                        componentActive = true;
+                    }
+                    else
+                    {
+                        componentActive = false;
+                    }
                 }
                 else
                 {
@@ -237,14 +244,11 @@ public class LGComponent : MonoBehaviour
                 }
                 break;
             case ComponentSO.ComponentType.OR: //OR GATE
-                foreach (Connection conn in connections)
+                if (activeConnections > 0)
                 {
-                    if (conn.input.componentActive)
-                    {
-                        componentActive = true;
-                        break;
-                    }
-                }
+                    componentActive = true;
+                    break;
+                } 
                 componentActive = false;
                 break;
             case ComponentSO.ComponentType.NAND: //Not AND GATE
@@ -289,6 +293,18 @@ public class LGComponent : MonoBehaviour
                 break;
             case ComponentSO.ComponentType.POWER:
                 componentActive = true;
+                break;
+            case ComponentSO.ComponentType.LIGHT:
+                if (activeConnections > 0)
+                {
+                    componentActive = true;
+                    spr.color = componentData.componentColor;
+                }
+                else
+                {
+                    componentActive = false;
+                    spr.color = new Color(0.5f, 0.5f, 0.5f);
+                }
                 break;
         }
         #endregion
