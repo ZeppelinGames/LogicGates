@@ -78,16 +78,13 @@ public class LGComponent : MonoBehaviour
         else //There are enough nodes already. Turn them on
         {
             int activeNodes = 0;
-            int lastActiveNodeIndex = 0;
             for (int n = 0; n < inputNodes.Count; n++)
             {
                 if (inputNodes[n].activeInHierarchy)
                 {
                     activeNodes++;
-                    lastActiveNodeIndex = n;
                 }
             }
-
             if (activeNodes > inputs) //More nodes are active than needed. Turn some off
             {
                 for (int i = inputNodes.Count - 1; i > activeNodes - inputs; i--)
@@ -97,9 +94,18 @@ public class LGComponent : MonoBehaviour
             }
             else //Not enough nodes are on. Turn some on
             {
-                for (int i = lastActiveNodeIndex; i < inputs - activeNodes; i++)
+                int neededNodes = (inputs - activeNodes);
+                int addedNodes = 0;
+                for (int i = 0; i < inputNodes.Count; i++)
                 {
-                    inputNodes[i].SetActive(true);
+                    if (addedNodes < neededNodes)
+                    {
+                        if (!inputNodes[i].activeInHierarchy)
+                        {
+                            addedNodes++;
+                            inputNodes[i].SetActive(true);
+                        }
+                    }
                 }
             }
         }
@@ -137,9 +143,18 @@ public class LGComponent : MonoBehaviour
             }
             else //Not enough nodes are on. Turn some on
             {
-                for (int i = lastActiveNodeIndex; i < outputs - activeNodes; i++)
+                int neededNodes = (outputs - activeNodes);
+                int addedNodes = 0;
+                for (int i = 0; i < outputNodes.Count; i++)
                 {
-                    outputNodes[i].SetActive(true);
+                    if (addedNodes < neededNodes)
+                    {
+                        if (!outputNodes[i].activeInHierarchy)
+                        {
+                            addedNodes++;
+                            outputNodes[i].SetActive(true);
+                        }
+                    }
                 }
             }
         }
@@ -192,6 +207,14 @@ public class LGComponent : MonoBehaviour
                 {
                     deadConnection.Add(connection);
                 }
+            }
+
+            GameObject node1GO = from.outputNodes[connection.outputNode];
+            GameObject node2GO = to.inputNodes[connection.inputNode];
+
+            if(!node1GO.activeInHierarchy || !node2GO.activeInHierarchy)
+            {
+                deadConnection.Add(connection);
             }
 
             if (deadConnection.Count < 1)
@@ -399,6 +422,7 @@ public class LGComponent : MonoBehaviour
         }
 
         UpdateWires();
+        UpdateNodes();
     }
 
     public void IncreaseInputs()
